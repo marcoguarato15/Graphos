@@ -72,27 +72,24 @@ int maiorValor(no* raiz) {
 }
 
 // Função auxiliar que percorre a árvore e verifica se é cheia
-int verificaCheia(no* raiz, int nivel, int alturaFolha) {
+int verificaCheia(no* raiz, int nivel, int *alturaFolha) {
     if (raiz == NULL) {
-        return 1; // Nó vazio não atrapalha, consideramos válido
+        return 1; // Nó vazio não atrapalha
     }
 
-    // Caso 1: Nó folha (não tem filhos)
+    // Caso 1: Nó folha
     if (raiz->esq == NULL && raiz->dir == NULL) {
-        // Se ainda não temos altura de folha registrada (valor inicial -1)
-        if (alturaFolha == -1) {
-            alturaFolha = nivel; // Guardamos a altura da primeira folha
+        if (*alturaFolha == -1) {
+            *alturaFolha = nivel; // Guardamos a altura da primeira folha
+        } else if (nivel != *alturaFolha) {
+            return 0; // Folha em altura diferente → não é cheia
         }
-        // Se já temos altura registrada, comparamos
-        else if (nivel != alturaFolha) {
-            return 0; // Encontramos folha em altura diferente → não é cheia
-        }
-        return 1; // Folha válida
+        return 1;
     }
 
-    // Caso 2: Nó interno mas incompleto (tem só um filho)
+    // Caso 2: Nó interno mas incompleto
     if (raiz->esq == NULL || raiz->dir == NULL) {
-        return 0; // Não pode existir nó incompleto antes do último nível
+        return 0;
     }
 
     // Caso 3: Nó interno completo → verificamos recursivamente
@@ -100,19 +97,21 @@ int verificaCheia(no* raiz, int nivel, int alturaFolha) {
            verificaCheia(raiz->dir, nivel + 1, alturaFolha);
 }
 
-// Função principal chamada pelo usuário
+// Função principal
 int arvoreCheia(no* raiz) {
-    // Chamamos a função auxiliar com alturaFolha inicial -1
-    return verificaCheia(raiz, 0, -1);
+    int alturaFolha = -1; // variável compartilhada
+    return verificaCheia(raiz, 0, &alturaFolha);
 }
+
 
 
 int main() {
     printf("Arvore Binaria de Busca!\n\n");
     no* raiz = NULL;
     int i=0;
-    int valores[11] = {50, 30, 70, 20, 40, 60, 80, 35, 45, 65, 85};
-    for(i=0; i<11; i++) {
+    int valores[7] = {50, 30, 70, 20, 40, 60, 80,};
+    //  35, 45, 65, 85
+    for(i=0; i<7; i++) {
         raiz = inserirNo(valores[i], raiz);
     }
     mostrar_preOrdem(raiz);
