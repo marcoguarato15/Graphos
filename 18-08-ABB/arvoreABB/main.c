@@ -156,6 +156,28 @@ no* removerNo(no* raiz, int valor) {
     return raiz;
 }
 
+// Função que retorna a altura (nível) de um nó específico
+int alturaNo(no* raiz, int valor) {
+    int nivel = 0; // começa na raiz (nível 0)
+
+    while (raiz != NULL) {
+        if (valor == raiz->n) {
+            // Encontramos o nó → retornamos o nível atual
+            return nivel;
+        } else if (valor < raiz->n) {
+            // Valor menor → desce para a esquerda
+            raiz = raiz->esq;
+        } else {
+            // Valor maior → desce para a direita
+            raiz = raiz->dir;
+        }
+        nivel++; // cada descida aumenta o nível
+    }
+
+    // Se sair do loop, o valor não existe na árvore
+    return -1; // indica que o nó não foi encontrado
+}
+
 
 int main() {
     printf("Arvore Binaria de Busca!\n\n");
@@ -176,7 +198,16 @@ int main() {
         printf("\nA arvore NAO eh cheia!\n");
     }
 
-        printf("Pre-ordem antes da remocao:\n");
+    int valorBuscado = 60;
+    int nivel = alturaNo(raiz, valorBuscado);
+
+    if (nivel != -1) {
+        printf("\nO valor %d esta na altura (nivel) %d\n", valorBuscado, nivel);
+    } else {
+        printf("\nO valor %d nao foi encontrado na arvore\n", valorBuscado);
+    }
+
+    printf("\n\nPre-ordem antes da remocao:\n");
     mostrar_preOrdem(raiz);
 
     raiz = removerNo(raiz, 30); // remove nó 30
