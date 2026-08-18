@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-//�rvore ABB
+//Árvore ABB
 struct no {
     int n;
     struct no *esq;
@@ -17,11 +17,11 @@ no* criaNo(int n) {
 }
 
 no* inserirNo(int n, no* raiz) {
-    //1 - raiz � nula
-    //2 - raiz n�o � nula
+    //1 - raiz é nula
+    //2 - raiz não é nula
         //n > raiz -> adiciona a direita
         //n < raiz -> adiciona a esquerda
-        //n === raiz -> printf "valor j� existente"
+        //n === raiz -> printf "valor já existente"
     if(raiz == NULL) {
         no* novoNo = criaNo(n);
         return novoNo;
@@ -45,6 +45,68 @@ void mostrar_preOrdem(no* raiz) {//R E D
     }
 }
 
+int altura(no* raiz) {
+    if (raiz == NULL) {
+        return -1; // árvore vazia tem altura -1, assim raiz começa em 0
+    } else {
+        int alturaEsq = altura(raiz->esq);
+        int alturaDir = altura(raiz->dir);
+        if (alturaEsq > alturaDir) {
+            return alturaEsq + 1;
+        } else {
+            return alturaDir + 1;
+        }
+    }
+}
+
+int maiorValor(no* raiz) {
+    if (raiz == NULL){
+        return -1;
+    } else {
+        if (raiz->dir == NULL) {
+            return raiz->n;
+        } else {
+            maiorValor(raiz->dir);
+        }
+    }
+}
+
+// Função auxiliar que percorre a árvore e verifica se é cheia
+int verificaCheia(no* raiz, int nivel, int alturaFolha) {
+    if (raiz == NULL) {
+        return 1; // Nó vazio não atrapalha, consideramos válido
+    }
+
+    // Caso 1: Nó folha (não tem filhos)
+    if (raiz->esq == NULL && raiz->dir == NULL) {
+        // Se ainda não temos altura de folha registrada (valor inicial -1)
+        if (alturaFolha == -1) {
+            alturaFolha = nivel; // Guardamos a altura da primeira folha
+        }
+        // Se já temos altura registrada, comparamos
+        else if (nivel != alturaFolha) {
+            return 0; // Encontramos folha em altura diferente → não é cheia
+        }
+        return 1; // Folha válida
+    }
+
+    // Caso 2: Nó interno mas incompleto (tem só um filho)
+    if (raiz->esq == NULL || raiz->dir == NULL) {
+        return 0; // Não pode existir nó incompleto antes do último nível
+    }
+
+    // Caso 3: Nó interno completo → verificamos recursivamente
+    return verificaCheia(raiz->esq, nivel + 1, alturaFolha) &&
+           verificaCheia(raiz->dir, nivel + 1, alturaFolha);
+}
+
+// Função principal chamada pelo usuário
+int arvoreCheia(no* raiz) {
+    // Chamamos a função auxiliar com alturaFolha inicial -1
+    return verificaCheia(raiz, 0, -1);
+}
+
+
 int main() {
     printf("Arvore Binaria de Busca!\n\n");
     no* raiz = NULL;
@@ -54,5 +116,14 @@ int main() {
         raiz = inserirNo(valores[i], raiz);
     }
     mostrar_preOrdem(raiz);
+    printf("\nMaior valor da arvore e: %d\n", maiorValor(raiz));
+    printf("\nAltura da arvore: %d\n", altura(raiz));
+
+    if (arvoreCheia(raiz)) {
+        printf("\nA arvore eh cheia!\n");
+    } else {
+        printf("\nA arvore NAO eh cheia!\n");
+    }
+
     return 0;
 }
