@@ -103,15 +103,67 @@ int arvoreCheia(no* raiz) {
     return verificaCheia(raiz, 0, &alturaFolha);
 }
 
+// Receba um valor e faça a remoção do nó que contém esse valor na árvore ABB.
+
+// Função auxiliar para encontrar o menor valor em uma subárvore
+no* menorNo(no* raiz) {
+    no* atual = raiz;
+    while (atual != NULL && atual->esq != NULL) {
+        atual = atual->esq;
+    }
+    return atual;
+}
+
+// Função para remover um nó da árvore
+no* removerNo(no* raiz, int valor) {
+    if (raiz == NULL) {
+        return NULL; // Caso 1: árvore vazia ou valor não encontrado
+    }
+
+    if (valor < raiz->n) {
+        // Procurar na subárvore esquerda
+        raiz->esq = removerNo(raiz->esq, valor);
+    } else if (valor > raiz->n) {
+        // Procurar na subárvore direita
+        raiz->dir = removerNo(raiz->dir, valor);
+    } else {
+        // Caso encontrado
+
+        // Caso 3: Nó folha
+        if (raiz->esq == NULL && raiz->dir == NULL) {
+            free(raiz);
+            return NULL;
+        }
+
+        // Caso 4: Nó com apenas um filho
+        else if (raiz->esq == NULL) {
+            no* temp = raiz->dir;
+            free(raiz);
+            return temp;
+        } else if (raiz->dir == NULL) {
+            no* temp = raiz->esq;
+            free(raiz);
+            return temp;
+        }
+
+        // Caso 5: Nó com dois filhos
+        else {
+            no* temp = menorNo(raiz->dir); // sucessor in-order
+            raiz->n = temp->n; // substitui valor
+            raiz->dir = removerNo(raiz->dir, temp->n); // remove sucessor
+        }
+    }
+    return raiz;
+}
 
 
 int main() {
     printf("Arvore Binaria de Busca!\n\n");
     no* raiz = NULL;
     int i=0;
-    int valores[7] = {50, 30, 70, 20, 40, 60, 80,};
-    //  35, 45, 65, 85
-    for(i=0; i<7; i++) {
+    int valores[11] = {50, 30, 70, 20, 40, 60, 80, 35, 45, 65, 85};
+    //
+    for(i=0; i<11; i++) {
         raiz = inserirNo(valores[i], raiz);
     }
     mostrar_preOrdem(raiz);
@@ -123,6 +175,17 @@ int main() {
     } else {
         printf("\nA arvore NAO eh cheia!\n");
     }
+
+        printf("Pre-ordem antes da remocao:\n");
+    mostrar_preOrdem(raiz);
+
+    raiz = removerNo(raiz, 30); // remove nó 30
+    printf("\nPre-ordem apos remover 30:\n");
+    mostrar_preOrdem(raiz);
+
+    raiz = removerNo(raiz, 50); // remove raiz
+    printf("\nPre-ordem apos remover 50:\n");
+    mostrar_preOrdem(raiz);
 
     return 0;
 }
