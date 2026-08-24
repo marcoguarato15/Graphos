@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//�rvore ABB - PROFESSOR GUILHERME MELO
+//Árvore ABB - PROFESSOR GUILHERME MELO
 struct no {
     int n;
     struct no *esq;
@@ -49,7 +49,7 @@ no* encontrarMaximo(no* raiz) {
 
 no* encontrarNo(no* raiz, int n) {
     if (raiz == NULL) {
-        //N�o Encontrado
+        //Não Encontrado
         return NULL;
     } else if (raiz->n == n) {
         return raiz;
@@ -128,11 +128,11 @@ no* rotacaoEsquerda(no* desbal) {
 }
 
 no* inserirNo(int n, no* raiz) {
-    //1 - raiz � nula
-    //2 - raiz n�o � nula
+    //1 - raiz é nula
+    //2 - raiz não é nula
         //n > raiz -> adiciona a direita
         //n < raiz -> adiciona a esquerda
-        //n === raiz -> printf "valor j� existente"
+        //n === raiz -> printf "valor já existente"
     if(raiz == NULL) {
         no* novoNo = criaNo(n);
         return novoNo;
@@ -150,7 +150,7 @@ no* inserirNo(int n, no* raiz) {
 
         //VERIFICAR NECESSIDADE DE ROTACAO
 
-        //ROTACAO SIMPLES A DIREITA (TEMOS UMA �RVORE ESQUERDA ESQUERDA)
+        //ROTACAO SIMPLES A DIREITA (TEMOS UMA ÁRVORE ESQUERDA ESQUERDA)
         // INSERINDO o 3 -
         //     5         4
         //   4     ->  3   5
@@ -159,7 +159,7 @@ no* inserirNo(int n, no* raiz) {
             return rotacaoDireita(raiz);
         }
 
-        //ROTACAO SIMPLES A ESQUERDA (TEMOS UMA �RVORE DIREITA DIREITA)
+        //ROTACAO SIMPLES A ESQUERDA (TEMOS UMA ÁRVORE DIREITA DIREITA)
         // INSERINDO o 5
         // 3             4
         //   4     ->  3   5
@@ -190,6 +190,72 @@ no* inserirNo(int n, no* raiz) {
 
         return raiz;
     }
+}
+
+no* removerNo(no* raiz, int n) {
+    if (raiz == NULL) {
+        return raiz; // valor não encontrado
+    }
+
+    // 1. Busca do nó
+    if (n < raiz->n) {
+        raiz->esq = removerNo(raiz->esq, n);
+    } else if (n > raiz->n) {
+        raiz->dir = removerNo(raiz->dir, n);
+    } else {
+        // 2. Remoção
+        if (raiz->esq == NULL || raiz->dir == NULL) {
+            no* temp = NULL;
+            if (raiz->esq != NULL) {
+                temp = raiz->esq;
+            } else {
+                temp = raiz->dir;
+            }
+
+            if (temp == NULL) { // sem filhos
+                temp = raiz;
+                raiz = NULL;
+            } else { // um filho
+                *raiz = *temp; // copia conteúdo do filho
+            }
+            free(temp);
+        } else {
+            // dois filhos → pega o menor da subárvore direita
+            no* temp = encontrarMinimo(raiz->dir);
+            raiz->n = temp->n;
+            raiz->dir = removerNo(raiz->dir, temp->n);
+        }
+    }
+
+    // Se a árvore ficou vazia
+    if (raiz == NULL) return raiz;
+
+    // 3. Rebalanceamento
+    int fb = fatorBalanceamento(raiz);
+
+    // Caso esquerda-esquerda
+    if (fb > 1 && fatorBalanceamento(raiz->esq) >= 0) {
+        return rotacaoDireita(raiz);
+    }
+
+    // Caso esquerda-direita
+    if (fb > 1 && fatorBalanceamento(raiz->esq) < 0) {
+        raiz->esq = rotacaoEsquerda(raiz->esq);
+        return rotacaoDireita(raiz);
+    }
+
+    // Caso direita-direita
+    if (fb < -1 && fatorBalanceamento(raiz->dir) <= 0) {
+        return rotacaoEsquerda(raiz);
+    }
+
+    // Caso direita-esquerda
+    if (fb < -1 && fatorBalanceamento(raiz->dir) > 0) {
+        raiz->dir = rotacaoDireita(raiz->dir);
+        return rotacaoEsquerda(raiz);
+    }
+
+    return raiz;
 }
 
 
@@ -227,6 +293,10 @@ int main() {
 
     no* min = encontrarMinimo(raiz);
     printf("\n\nMinimo valor: %d\n", min->n);
+
+    mostrar_preOrdem(raiz);
+    removerNo(raiz, 79);
+    mostrar_preOrdem(raiz);
 //
 //    no* max = encontrarMaximo(raiz);
 //    printf("\nMaximo valor: %d\n", max->n);
