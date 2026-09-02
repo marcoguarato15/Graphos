@@ -119,6 +119,15 @@ no* rotacaoDireita(no* desbal) {
     return filho;
 }
 
+no* rotDireita(no* desbal){
+    no* filho = desbal->esq;
+    desbal->esq = filho->dir;
+    filho->dir = desbal;
+
+    return filho;
+}
+
+
 no* rotacaoEsquerda(no* desbal) {
     no* filho = desbal->dir;
     desbal->dir = filho->esq;
@@ -258,6 +267,179 @@ no* removerNo(no* raiz, int n) {
     return raiz;
 }
 
+no* rNo(no* raiz, int n){
+    if (raiz == NULL){
+        return raiz;
+    }
+    if (n > raiz->n){
+        raiz->dir = rNo(raiz->dir, n);
+    } else if (n < raiz->n){
+        raiz->esq = rNo(raiz->esq, n);
+    } else {
+        if (raiz->esq == NULL || raiz->dir == NULL){
+            no* temp;
+            if (raiz->esq != NULL){
+                temp = raiz->esq;
+            } else if (raiz->dir != NULL){
+                temp = raiz->dir;
+            }
+            if(temp == NULL){
+                temp = raiz;
+                raiz = NULL;
+            } else {
+                *raiz = *temp;
+            }
+            free(temp);
+        } else {
+            no* temp = encontrarMinimo(raiz->dir);
+            raiz->n = temp->n;
+            raiz->dir = rNo(raiz->dir, temp->n);
+        }
+    }
+
+    if (raiz == NULL){
+        return raiz;
+    }
+
+    int fb = fatorBalanceamento(raiz);
+
+    if (fb > 1 && fatorBalanceamento(raiz->esq) >= 0){
+        return rotacaoDireita(raiz);
+    }
+
+    if (fb > 1 && fatorBalanceamento(raiz->esq) < 0){
+        raiz->esq = rotacaoEsquerda(raiz->esq);
+        return rotacaoDireita(raiz);
+    }
+
+    if (fb < -1 && fatorBalanceamento(raiz->dir) <= 0){
+        return rotacaoEsquerda(raiz);
+    }
+
+    if (fb < -1 && fatorBalanceamento(raiz->dir) > 0){
+        raiz->dir = rotacaoDireita(raiz->dir);
+        return rotacaoEsquerda(raiz);
+    }
+
+    return raiz;
+}
+
+no* remNo(no* raiz, int n){
+    if (raiz == NULL){
+        return raiz;
+    }
+
+    if (n > raiz->n){
+        raiz->dir = remNo(raiz->dir, n);
+    } else if (n < raiz->n) {
+        raiz->esq = remNo(raiz->esq, n);
+    } else {
+        if (raiz->esq == NULL || raiz->dir == NULL){
+            no* temp = NULL;
+            if (raiz->esq != NULL){
+                temp = raiz->esq;
+            } else if (raiz->dir != NULL) {
+                temp = raiz->dir;
+            }
+            if (temp == NULL){
+                temp = raiz;
+                raiz = NULL;
+            } else {
+                *raiz = *temp;
+            }
+            free(temp);
+
+        } else {
+            no* temp = encontrarMinimo(raiz->dir);
+            raiz->n = temp->n;
+            raiz->dir = remNo(raiz->dir, temp->n);
+        }
+    }
+
+    if (raiz == NULL){
+        return raiz;
+    }
+
+    int fb = fatorBalanceamento(raiz);
+
+    if (fb > 1 && fatorBalanceamento(raiz->esq) > 0) {
+        return rotacaoDireita(raiz);
+    }
+
+    if (fb > 1 && fatorBalanceamento(raiz->esq) <= 0) {
+        raiz->esq = rotacaoEsquerda(raiz->esq);
+        return rotacaoDireita(raiz);
+    }
+
+    if (fb < -1 && fatorBalanceamento(raiz->dir) < 0) {
+        return rotacaoEsquerda(raiz);
+    }
+
+    if (fb < -1 && fatorBalanceamento(raiz->dir) >= 0) {
+        raiz->dir = rotacaoDireita(raiz->dir);
+        return rotacaoEsquerda(raiz);
+    }
+
+    return raiz;
+}
+
+no* rNo(no* raiz, int n){
+    if (raiz == NULL){
+        return raiz;
+    }
+    if (n > raiz->n){
+        raiz->dir = rNo(raiz->dir, n);
+    }else if(n < raiz->n){
+        raiz->esq = rNo(raiz->esq, n);
+    } else {
+        if (raiz->esq == NULL || raiz->dir == NULL){
+            no* temp = NULL;
+            if (raiz->esq != NULL){
+                temp = raiz->esq;
+            }else{
+                temp = raiz->dir;
+            }
+            if (temp == NULL){
+                temp = raiz;
+                raiz = NULL;
+            } else {
+                *raiz = *temp;
+            }
+            free(temp);
+
+        } else {
+            no* temp = encontrarMinimo(raiz->dir);
+            raiz->n = temp->n;
+            raiz->dir = rNo(raiz->dir, temp->n);
+        }
+    }
+    if (raiz == NULL){
+        return raiz;
+    }
+
+    int fb = fatorBalanceamento(raiz);
+    // caso esquerda
+
+    if (fb > 1 && fatorBalanceamento(raiz->esq) >= 0){
+        return rotacaoDireita(raiz);
+    }
+
+    if (fb > 1 && fatorBalanceamento(raiz->esq) < 0){
+        raiz->esq = rotacaoEsquerda(raiz);
+        return rotacaoDireita(raiz);
+    }
+
+    if (fb < -1 && fatorBalanceamento(raiz->dir) <= 0){
+        return rotacaoEsquerda(raiz);
+    }
+
+    if (fb < -1 && fatorBalanceamento(raiz->dir) > 0){
+        raiz->dir = rotacaoDireita(raiz->dir);
+        return rotacaoEsquerda(raiz);
+    }
+
+    return raiz;
+}
 
 int main() {
     printf("Arvore Binaria de Busca!\n\n");
@@ -294,9 +476,10 @@ int main() {
     no* min = encontrarMinimo(raiz);
     printf("\n\nMinimo valor: %d\n", min->n);
 
-    mostrar_preOrdem(raiz);
-    removerNo(raiz, 79);
-    mostrar_preOrdem(raiz);
+    mostrar_preOrdem(raiz3);
+    raiz3 = remNo(raiz3, 10);
+    raiz3 = remNo(raiz3, 5);
+    mostrar_preOrdem(raiz3);
 //
 //    no* max = encontrarMaximo(raiz);
 //    printf("\nMaximo valor: %d\n", max->n);
